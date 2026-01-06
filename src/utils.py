@@ -374,35 +374,36 @@ def load_community_comments(
 # Dataset Utilities
 # =============================================================================
 
-def create_dataset(
-    dataset: Dataset,
-    col: str,
-    tokenizer: AutoTokenizer,
-    max_len: int = 512
-) -> Dataset:
-    """
-    Create tokenized dataset from a text column.
-    
-    Args:
-        dataset: HuggingFace Dataset
-        col: Column name to tokenize
-        tokenizer: Tokenizer to use
-        max_len: Maximum sequence length
-    
-    Returns:
-        Dataset with 'tokens' column
-    """
-    def tokenize(example):
-        tokens = tokenizer(
-            example[col],
-            truncation=True,
-            max_length=max_len,
-            return_tensors='pt',
-            padding='max_length'
+def create_dataset(dataset, col_name, tokenizer, max_len=150, instruct=False):
+    cols = dataset.column_names
+    if not instruct:
+        token_dataset = dataset.map(
+            lambda text: tokenizer(text[col_name], 
+                                          padding='max_length',
+                                          padding_side='left',
+                                          truncation=True,
+                                          max_length=max_len,
+                                          return_tensors='pt'
+                                         ),
+            batched=True,
         )
-        return {'tokens': tokens['input_ids'].squeeze()}
-    
-    return dataset.map(tokenize)
+    else:
+        token_dataset = dataset.map(
+            lambda text: tokenizer.apply_chat_template([{"role": "user", "content": text[col_name]}], 
+                                                       tokenize=True, 
+                                                       add_generation_prompt=True, 
+                                                       return_tensors="pt",
+                                                      padding='max_length',
+                                                      padding_side='left',
+                                                      truncation=True,
+                                                      max_length=max_len,
+                                                      ),
+            batched = True,
+        )
+    token_dataset = token_dataset.remove_columns(cols + ['attention_mask'])
+    token_dataset = token_dataset.rename_columns({'input_ids': 'tokens'})
+    token_dataset.set_format(type="torch", columns=["tokens"])
+    return token_dataset
 
 
 def trim_by_tokens(text: str, tokenizer: AutoTokenizer, length: int) -> str:

@@ -94,6 +94,9 @@ def get_steering_single(
         for i in range(num_batches):
             batch_pos = pos_tokens[b*i:b*i+b]["tokens"]
             batch_neg = neu_tokens[b*i:b*i+b]["tokens"]
+            # Stack the list of tensors into a batch, then concatenate pos and neg
+            batch_pos = torch.stack(batch_pos) if isinstance(batch_pos, list) else batch_pos
+            batch_neg = torch.stack(batch_neg) if isinstance(batch_neg, list) else batch_neg
             batch_tokens = torch.concat([batch_pos, batch_neg])
             
             _, cache = model.run_with_cache(batch_tokens, prepend_bos=True)
