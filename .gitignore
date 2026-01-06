@@ -184,3 +184,4 @@ old_code
 modular_pluralism
 slurm
 run_experiments.sh
+datasets/*

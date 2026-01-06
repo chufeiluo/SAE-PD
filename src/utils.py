@@ -206,8 +206,8 @@ def load_mislc(
     def_file: str,
     num_ans: int = 1,
     doc_type: str = 'feedback',
-    train_path: str = "../../train.csv",
-    test_path: str = "../../test.csv"
+    train_path: str = "../datasets/mislc_train.csv",
+    test_path: str = "../datasets/mislc_test.csv"
 ) -> Tuple[Dataset, Dataset]:
     """
     Load misinformation dataset.
@@ -251,8 +251,8 @@ def load_hs(
     def_file: str,
     num_ans: int = 1,
     doc_type: str = 'feedback',
-    train_path: str = "../../hatespeech/data/legal_train.csv",
-    test_path: str = "../../hatespeech/data/legal_test.csv"
+    train_path: str = "../datasets/legal_train.csv",
+    test_path: str = "../datasets/legal_test.csv"
 ) -> Tuple[Dataset, Dataset]:
     """
     Load hate speech dataset.
